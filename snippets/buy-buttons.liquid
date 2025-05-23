@@ -149,3 +149,69 @@
     <script src="{{ 'pickup-availability.js' | asset_url }}" defer="defer"></script>
   {%- endif -%}
 </div>
+
+{%- comment -%}
+  Customize Collection Button
+  Usage:
+  {% render 'customize-collection-button', product: product %}
+{%- endcomment -%}
+
+<button
+  type="button"
+  name="customize-collection"
+  class="button button--full-width button--secondary"
+  data-customize-collection-button
+  {% if product.selected_or_first_available_variant.available == false %}disabled{% endif %}
+>
+  <span>Customize Collection</span>
+  <div class="loading__spinner hidden"></div>
+</button>
+
+<script>
+  class CustomizeCollectionButton extends HTMLElement {
+    constructor() {
+      super();
+      this.button = this.querySelector('[data-customize-collection-button]');
+      this.button.addEventListener('click', this.onClickHandler.bind(this));
+    }
+
+    onClickHandler(event) {
+      event.preventDefault();
+      
+      // Get the current variant ID
+      const variantId = document.querySelector('[name="id"]').value;
+      
+      // Add to cart using the existing cart functionality
+      const formData = new FormData();
+      formData.append('id', variantId);
+      formData.append('quantity', 1);
+
+      fetch(`${window.routes.cart_add_url}`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(response => response.json())
+      .then(response => {
+        if (response.status) {
+          // Handle error
+          console.error('Error adding to cart:', response.description);
+          return;
+        }
+
+        // Trigger cart update
+        const cart = document.querySelector('cart-notification') || document.querySelector('cart-drawer');
+        if (cart) {
+          cart.renderContents(response);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    }
+  }
+
+  customElements.define('customize-collection-button', CustomizeCollectionButton);
+</script>
