@@ -471,6 +471,17 @@
                   section_id: section.id,
                   show_pickup_availability: true
                 -%}
+
+              {%- when 'buy_buttons' -%}
+                 <div {{ block.shopify_attributes }}>
+                 {%- if product != blank -%}
+                  <product-form class="product-form">
+                   <!-- existing buy button code -->
+                   </product-form>
+      
+               {% render 'customize-collection-button', product: product %}
+               {%- endif -%}
+                   </div>              
               {%- when 'rating' -%}
                 {%- if product.metafields.reviews.rating.value != blank -%}
                   <div class="rating-wrapper">
