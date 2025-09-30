@@ -122,6 +122,40 @@
   </div>
 </div>
 
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var form = document.getElementById('ContactForm');
+    if (!form) return;
+
+    form.addEventListener('submit', function() {
+      try {
+        var formData = new FormData(form);
+        var payload = {};
+        formData.forEach(function(value, key) {
+          payload[key] = value;
+        });
+
+        // TODO: Replace this URL with your deployed Google Apps Script Web App URL
+        var webhookUrl = window.CONTACT_FORM_WEBHOOK_URL || 'https://script.google.com/macros/s/AKfycbz-KsQPL0Tn_l0fkJ6025HHuy0sRVzDf056JjjvUcFbibfIdtocU9uNtq1NBwI161Yc/exec';
+
+        fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            source: 'shopify_contact_form',
+            page: window.location.href,
+            submittedAt: new Date().toISOString(),
+            data: payload
+          })
+        }).catch(function() { /* ignore */ });
+      } catch (e) {
+        // ignore errors so Shopify submission proceeds normally
+      }
+      // Do not preventDefault; allow Shopify to handle the form and show success/errors
+    }, { passive: true });
+  });
+</script>
+
 {% schema %}
 {
   "name": "t:sections.contact-form.name",
