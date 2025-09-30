@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Webhook</title>
+</head>
+<body>
+    <h1>Test Webhook to Google Apps Script</h1>
+    <button onclick="testWebhook()">Test Webhook</button>
+    <div id="result"></div>
+
+    <script>
+        function testWebhook() {
+            const webhookUrl = 'https://script.google.com/macros/s/AKfycbx6pQPrvQrZ69ZJHVX11YbMITi-IzyFRjakd2BiTv5hhtmNRGdjkaRdR5Aaqaq5bRZD/exec';
+            const testData = {
+                source: 'test_webhook',
+                page: 'test-page',
+                submittedAt: new Date().toISOString(),
+                data: {
+                    'contact[name]': 'Test User',
+                    'contact[email]': 'test@example.com',
+                    'contact[body]': 'Test message'
+                }
+            };
+
+            fetch(webhookUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(testData)
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.text();
+            })
+            .then(text => {
+                console.log('Response body:', text);
+                document.getElementById('result').innerHTML = 
+                    '<p>Status: ' + response.status + '</p><p>Response: ' + text + '</p>';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = '<p>Error: ' + error + '</p>';
+            });
+        }
+    </script>
+</body>
+</html>

@@ -128,15 +128,17 @@
     if (!form) return;
 
     form.addEventListener('submit', function() {
+      console.log('Contact form submitted - webhook will be called');
       try {
         var formData = new FormData(form);
         var payload = {};
         formData.forEach(function(value, key) {
           payload[key] = value;
         });
+        console.log('Form data collected:', payload);
 
         // TODO: Replace this URL with your deployed Google Apps Script Web App URL
-        var webhookUrl = window.CONTACT_FORM_WEBHOOK_URL || 'https://script.google.com/macros/s/AKfycbz-KsQPL0Tn_l0fkJ6025HHuy0sRVzDf056JjjvUcFbibfIdtocU9uNtq1NBwI161Yc/exec';
+        var webhookUrl = window.CONTACT_FORM_WEBHOOK_URL || 'https://script.google.com/macros/s/AKfycby8GV5EYa134LS1hCG2dHR_v6l60UnCtm6TvNrwxK1Xpsu-klUUpbS1kFh9eIzpFA6a/exec';
 
         fetch(webhookUrl, {
           method: 'POST',
@@ -147,7 +149,17 @@
             submittedAt: new Date().toISOString(),
             data: payload
           })
-        }).catch(function() { /* ignore */ });
+        })
+        .then(function(response) {
+          console.log('Webhook response:', response.status, response.statusText);
+          return response.text();
+        })
+        .then(function(text) {
+          console.log('Webhook response body:', text);
+        })
+        .catch(function(error) {
+          console.error('Webhook error:', error);
+        });
       } catch (e) {
         // ignore errors so Shopify submission proceeds normally
       }
